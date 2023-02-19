@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Movie;
+use App\Repository\MovieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,9 +12,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class MovieController extends AbstractController
 {
     private EntityManagerInterface $em;
-    public function __construct(EntityManagerInterface $em)
+    private MovieRepository $movieRepository;
+    public function __construct(EntityManagerInterface $em, MovieRepository $movieRepository)
     {
         $this->em = $em;
+        $this->movieRepository = $movieRepository;
     }
 
 
@@ -24,16 +27,29 @@ class MovieController extends AbstractController
 
         $movies = $movieRepository->findAll();
 
-        dd(
-            $movies
-        );
-
-        return $this->json($movies);
+        return $this->render('movies/index.html.twig', [
+            'movies' => $movies
+        ]);
     }
 
     #[Route('/movies/{id}', name: 'show_movie', methods: ['GET'])]
-    public function show($id)
+    public function show($id): Response
+    {
+        $movie = $this->movieRepository->find($id);
+
+        return $this->render('movies/show.html.twig', [
+            'movie' => $movie
+        ]);
+    }
+
+    #[Route('/movies/{id}', name: 'delete_movie', methods: ['DELETE'])]
+    public function delete($id)
     {
 
+    }
+
+    private function checkLoggedInUser($movieId)
+    {
+        
     }
 }
